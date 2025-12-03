@@ -4,18 +4,24 @@ import express from 'express';
 import cors from 'cors';
 import connectDB from './config/db.js';
 import errorHandler from './middlewares/error.js';
+import authRoutes from './routes/auth.js';
 
 const app = express();
 
 // middleware
-app.use(cors({ origin: process.env.CLIENT_URL }));
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true, 
+  })
+);
 app.use(express.json());
 
-
 // routes
+app.use('/api/auth', authRoutes);
 
 
-
+// error handler
 app.use(errorHandler);
 
 // test route
