@@ -7,6 +7,7 @@ import errorHandler from './middlewares/error.js';
 import authRoutes from './routes/auth.js';
 import courseRoutes from './routes/course.js';
 import studentRoutes from './routes/student.js';
+import adminRoutes from './routes/admin.js';
 
 const app = express();
 
@@ -23,6 +24,8 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/student", studentRoutes);
+
+app.use("/api/admin", adminRoutes);
 
 
 
