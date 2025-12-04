@@ -5,6 +5,7 @@ import cors from 'cors';
 import connectDB from './config/db.js';
 import errorHandler from './middlewares/error.js';
 import authRoutes from './routes/auth.js';
+import courseRoutes from './routes/course.js';
 
 const app = express();
 
@@ -19,6 +20,8 @@ app.use(express.json());
 
 // routes
 app.use('/api/auth', authRoutes);
+app.use("/api/courses", courseRoutes);
+
 
 
 // error handler
