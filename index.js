@@ -2,12 +2,12 @@ import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
 import cors from 'cors';
-import connectDB from './config/db.js';
-import errorHandler from './middlewares/error.js';
-import authRoutes from './routes/auth.js';
-import courseRoutes from './routes/course.js';
-import studentRoutes from './routes/student.js';
-import adminRoutes from './routes/admin.js';
+import errorHandler from './src/middlewares/error.js';
+import authRoutes from './src/routes/auth.js';
+import courseRoutes from './src/routes/course.js';
+import studentRoutes from './src/routes/student.js';
+import adminRoutes from './src/routes/admin.js'
+import connectDB from './src/config/db.js';
 
 const app = express();
 
@@ -24,10 +24,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/student", studentRoutes);
-
 app.use("/api/admin", adminRoutes);
-
-
 
 // error handler
 app.use(errorHandler);
