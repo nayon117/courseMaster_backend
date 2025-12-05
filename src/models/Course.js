@@ -1,21 +1,21 @@
 import mongoose from "mongoose";
 
 const assignmentSchema = new mongoose.Schema({
-  type: { type: String, enum: ["text", "link"], required: true },
+  type: { type: String, enum: ["text", "link"]},
   answer: { type: String, default: "" },
   status: { type: String, enum: ["pending", "reviewed"], default: "pending" },
 });
 
 const quizSchema = new mongoose.Schema({
-  question: { type: String, required: true },
-  options: [{ type: String, required: true }],
-  answer: { type: String, required: true },
+  question: { type: String},
+  options: [{ type: String}],
+  answer: { type: String},
 });
 
 const lessonSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  videoUrl: { type: String, required: true },
-  duration: { type: Number, required: true },
+  title: { type: String },
+  videoUrl: { type: String },
+  duration: { type: Number},
   isFree: { type: Boolean, default: false },
 
   assignments: { type: [assignmentSchema], default: [] },
@@ -25,8 +25,8 @@ const lessonSchema = new mongoose.Schema({
 
 const courseSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true, trim: true },
-    description: { type: String, required: true },
+    title: { type: String, trim: true },
+    description: { type: String},
     instructor: { type: String, default: "" },
     category: { type: String, default: "" },
     tags: [{ type: String }],
