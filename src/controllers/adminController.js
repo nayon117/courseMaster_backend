@@ -15,7 +15,7 @@ export const createCourse = async (req, res) => {
 
 export const getAllCourses = async (req, res) => {
   const courses = await Course.find();
-  res.json( courses );
+  res.json( {courses} );
 };
 
 export const getSingleCourse = async (req, res) => {

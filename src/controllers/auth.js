@@ -1,27 +1,49 @@
 import User from "../models/User.js";
 import { generateToken } from "../utils/jwt.js";
+import { sendEmail } from "../utils/mailer.js";
 
 
 // student registration
-export const registerStudent =async (req, res, next) => {
-    try {
-        const { name, email, password } = req.body;
-        // check if user exists
-        const userExists = await User.findOne({ email });
-        if (userExists) {
-            return res.status(400).json({ message: 'User already exists' });
-        }
-        const user = await User.create({ name, email, password});
-        const token = generateToken(user);
-        res.status(201).json({
-            success: true,
-            token,
-            user: { _id: user._id, name, email, role: user.role },
-        });
-    } catch (error) {
-        next(error);
+export const registerStudent = async (req, res, next) => {
+  try {
+    const { name, email, password } = req.body;
+
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: "User already exists" });
     }
-}
+
+    const user = await User.create({ name, email, password });
+
+    let emailStatus = "sent";
+    try {
+      const html = `
+        <h1>Welcome to CourseMaster, ${name}!</h1>
+        <p>Thank you for registering. We’re excited to have you onboard.</p>
+      `;
+      await sendEmail(email, "Welcome to CourseMaster!", html);
+    } catch (err) {
+      emailStatus = "failed";
+      console.error("Email Error:", err);
+    }
+
+    const token = generateToken(user);
+
+    return res.status(201).json({
+      success: true,
+      emailStatus,
+      message:
+        emailStatus === "failed"
+          ? "Account created but email not sent."
+          : "Account created successfully.",
+      token,
+      user: { _id: user._id, name, email, role: user.role },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 // student / admin login
 export const loginUser = async (req, res, next) => {
