@@ -17,6 +17,10 @@ PORT=your_port
 JWT_SECRET=your_jwt_secret_key
 CLIENT_URL=your_client_url
 ADMIN_KEY=admin_key
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=duhrkzeswvcjerte
 
 node index.js
 
