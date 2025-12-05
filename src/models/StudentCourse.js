@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 const LessonProgressSchema = new mongoose.Schema({
   lessonId: { type: mongoose.Schema.Types.ObjectId, required: true },
   completed: { type: Boolean, default: false },
-  assignment: { type: String, default: "" }, 
-  quizScore: { type: Number, default: 0 }  
+  assignment: { type: String, default: "" },
+  marks: { type: Number, default: 0 }        
 });
 
 const StudentCourseSchema = new mongoose.Schema({

@@ -1,8 +1,8 @@
 import Batch from "../models/Batch.js";
 import Enrollment from "../models/Enrollment.js";
-import AssignmentSubmission from "../models/AssignmentSubmission.js";
 import Course from "../models/Course.js";
 import User from "../models/User.js";
+import StudentCourse from "../models/StudentCourse.js";
 
 export const createCourse = async (req, res) => {
   try {
@@ -15,7 +15,7 @@ export const createCourse = async (req, res) => {
 
 export const getAllCourses = async (req, res) => {
   const courses = await Course.find();
-  res.json({ courses });
+  res.json( courses );
 };
 
 export const getSingleCourse = async (req, res) => {
@@ -72,49 +72,80 @@ export const getBatchStudents = async (req, res) => {
 };
 
 // ------------ Assignment Management ------------
-
+// GET all assignment submissions
 export const getAllAssignments = async (req, res) => {
-  const submissions = await AssignmentSubmission.find()
-    .populate("student", "name email")
-    .populate("course", "title");
-
-  res.json({ submissions });
-};
-
-export const reviewAssignment = async (req, res) => {
-  const { status, marks } = req.body;
-
-  const result = await AssignmentSubmission.findByIdAndUpdate(
-    req.params.assignmentId,
-    { status, marks },
-    { new: true }
-  );
-
-  res.json({ success: true, result });
-};
-
-export const getPendingAssignments = async (req, res) => {
   try {
-    const pendingAssignments = await AssignmentSubmission.find({
-      status: "pending",
-    })
-      .populate("student", "name email")
-      .populate("course", "title")
-      .populate("module", "title"); 
+    const submissions = await StudentCourse.find()
+      .populate("studentId", "name email")
+      .populate("courseId", "title");
 
-    res.json(pendingAssignments);
+    const result = [];
+    submissions.forEach(sc => {
+      sc.progress.forEach(progress => {
+        if (progress.assignment) {
+          result.push({
+            _id: progress._id,           
+            lessonId: progress.lessonId,
+            studentCourseId: sc._id,
+            student: sc.studentId,
+            course: sc.courseId,
+            assignment: progress.assignment,
+            marks: progress.marks ?? 0
+          });
+        }
+      });
+    });
+
+    res.json({ submissions: result });
   } catch (err) {
+    console.error("Error fetching assignments:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+
+// PATCH review and mark an assignment
+export const reviewAssignment = async (req, res) => {
+  const { marks } = req.body;
+  const { assignmentId } = req.params; 
+
+  try {
+    if (!mongoose.Types.ObjectId.isValid(assignmentId))
+      throw new Error("Invalid assignmentId");
+
+    const studentCourse = await StudentCourse.findOne({ "progress._id": assignmentId });
+    if (!studentCourse) throw new Error("StudentCourse not found");
+
+    const lesson = studentCourse.progress.id(assignmentId);
+    if (!lesson) throw new Error("Lesson not found");
+
+    lesson.marks = marks; 
+    await studentCourse.save();
+
+    res.json({ success: true, lesson });
+  } catch (err) {
+    console.error("Error updating assignment marks:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 
 
 export const getAdminMiniStats = async (req, res) => {
   try {
     const totalCourses = await Course.countDocuments();
     const totalStudents = await User.countDocuments({ role: "student" });
-    const pendingAssignments = await AssignmentSubmission.countDocuments({
-      status: "pending",
+
+    // Count total assignments in all courses
+    const courses = await Course.find({}, "syllabus");
+    let totalAssignments = 0;
+
+    courses.forEach(course => {
+      course.syllabus.forEach(lesson => {
+        if (lesson.assignments) {
+          totalAssignments += lesson.assignments.length;
+        }
+      });
     });
 
     res.json({
@@ -122,7 +153,7 @@ export const getAdminMiniStats = async (req, res) => {
       stats: {
         totalCourses,
         totalStudents,
-        pendingAssignments,
+        totalAssignments,
       },
     });
   } catch (error) {
@@ -140,3 +171,21 @@ export const getAllStudents = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch students" });
   }
 };
+
+// 2️⃣ Get students enrolled in a course
+export const getStudentsByCourse = async (req, res) => {
+  const { courseId } = req.params;
+
+  try {
+    // Find all studentCourse documents with the selected course
+    const studentCourses = await StudentCourse.find({ courseId })
+      .populate("studentId", "name email"); // get student details
+
+    const students = studentCourses.map(sc => sc.studentId); // array of students
+    res.json(students);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch students for this course" });
+  }
+};
+

@@ -1,37 +1,42 @@
 import mongoose from "mongoose";
 
-const AssignmentSchema = new mongoose.Schema({
-  type: { type: String, enum: ["link", "text"], default: "text" }, // type of submission
-  answer: String, // Google Drive link or text
+const assignmentSchema = new mongoose.Schema({
+  type: { type: String, enum: ["text", "link"], required: true },
+  answer: { type: String, default: "" },
   status: { type: String, enum: ["pending", "reviewed"], default: "pending" },
 });
 
-const QuizSchema = new mongoose.Schema({
-  question: String,
-  options: [String],
-  answer: String, 
+const quizSchema = new mongoose.Schema({
+  question: { type: String, required: true },
+  options: [{ type: String, required: true }],
+  answer: { type: String, required: true },
 });
 
-const LessonSchema = new mongoose.Schema({
-  title: String,
-  videoUrl: String,
-  duration: Number,
-  isFree: { type: Boolean, default: false },
-  assignments: [AssignmentSchema], 
-  quizzes: [QuizSchema],          
-});
-
-const CourseSchema = new mongoose.Schema({
+const lessonSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  description: String,
-  instructor: String,
-  category: String,
-  tags: [String],
-  syllabus: [LessonSchema],
-  price: Number,
-  thumbnail: String,
-  createdAt: { type: Date, default: Date.now },
+  videoUrl: { type: String, required: true },
+  duration: { type: Number, required: true },
+  isFree: { type: Boolean, default: false },
+
+  assignments: { type: [assignmentSchema], default: [] },
+  quizzes: { type: [quizSchema], default: [] },
 });
 
-const Course = mongoose.model("Course", CourseSchema);
+
+const courseSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true, trim: true },
+    description: { type: String, required: true },
+    instructor: { type: String, default: "" },
+    category: { type: String, default: "" },
+    tags: [{ type: String }],
+    price: { type: Number, default: 0 },
+    thumbnail: { type: String, default: "" },
+
+    syllabus: [lessonSchema],
+  },
+  { timestamps: true }
+);
+
+const Course = mongoose.model("Course", courseSchema);
 export default Course;

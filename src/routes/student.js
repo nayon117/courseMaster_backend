@@ -5,7 +5,6 @@ import {
   getCourseDetails,
   markLessonComplete,
   submitAssignment,
-  submitQuiz,
 } from "../controllers/studentController.js";
 import { protect } from "../middlewares/auth.js";
 
@@ -29,7 +28,5 @@ router.patch("/courses/:courseId/lesson/:lessonId", markLessonComplete);
 // Submit assignment
 router.post("/courses/:courseId/lesson/:lessonId/assignment", submitAssignment);
 
-// Submit quiz
-router.post("/courses/:courseId/lesson/:lessonId/quiz", submitQuiz);
 
 export default router;

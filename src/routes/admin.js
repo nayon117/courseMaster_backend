@@ -13,8 +13,8 @@ import {
   getAllAssignments,
   reviewAssignment,
   getAdminMiniStats,
-  getPendingAssignments,
   getAllStudents,
+  getStudentsByCourse,
 } from "../controllers/adminController.js";
 
 const router = express.Router();
@@ -30,6 +30,7 @@ router.post("/courses", createCourse);
 router.get("/courses", getAllCourses);
 
 router.get("/courses/:courseId", getSingleCourse);
+router.get("/courses/:courseId/students", getStudentsByCourse);
 router.put("/courses/:courseId", updateCourse);
 router.delete("/courses/:courseId", deleteCourse);
 
@@ -42,7 +43,6 @@ router.get("/batches/:batchId/students", getBatchStudents);
 
 // ASSIGNMENT REVIEW
 router.get("/assignments", getAllAssignments);
-router.get("/assignments/pending", getPendingAssignments);
 router.patch("/assignments/:assignmentId/review", reviewAssignment);
 
 
